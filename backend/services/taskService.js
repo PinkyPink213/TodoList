@@ -1,34 +1,9 @@
-const {
-	dynamo,
-	TABLE = 'TodoTasks',
-	ScanCommand,
-	GetCommand,
-	PutCommand,
-	UpdateCommand,
-	DeleteCommand,
-} = require('../db/dynamoClient');
+const dynamoDB = require('../db/dynamoClient');
 const { v4: uuidv4 } = require('uuid');
 
-// GET ALL
-exports.getAllTasks = async () => {
-	const res = await dynamo.send(new ScanCommand({ TableName: TABLE }));
-	return res.Items;
-};
-
-// GET ONE
-exports.getTask = async (taskId) => {
-	const res = await dynamo.send(
-		new GetCommand({
-			TableName: TABLE,
-			Key: { taskId },
-		})
-	);
-	return res.Item;
-};
-
-// CREATE
-exports.createTask = async (data) => {
-	const task = {
+const TABLE_NAME = 'TodoTasks';
+async function createTask(data) {
+	const item = {
 		taskId: uuidv4(),
 		title: data.title,
 		description: data.description || '',
@@ -37,52 +12,36 @@ exports.createTask = async (data) => {
 		updatedAt: new Date().toISOString(),
 	};
 
-	await dynamo.send(
-		new PutCommand({
-			TableName: TABLE,
-			Item: task,
+	await dynamoDB
+		.put({
+			TableName: TABLE_NAME,
+			Item: item,
 		})
-	);
+		.promise();
 
-	return task;
-};
+	return item;
+}
 
-// UPDATE
-exports.updateTask = async (taskId, data) => {
-	data.updatedAt = new Date().toISOString();
-
-	const keys = Object.keys(data).filter((k) => data[k] !== undefined);
-
-	const updateExp = [];
-	const names = {};
-	const values = {};
-
-	keys.forEach((k) => {
-		updateExp.push(`#${k} = :${k}`);
-		names[`#${k}`] = k;
-		values[`:${k}`] = data[k];
-	});
-
-	const res = await dynamo.send(
-		new UpdateCommand({
-			TableName: TABLE,
-			Key: { taskId },
-			UpdateExpression: `SET ${updateExp.join(', ')}`,
-			ExpressionAttributeNames: names,
-			ExpressionAttributeValues: values,
-			ReturnValues: 'ALL_NEW',
-		})
-	);
-
-	return res.Attributes;
-};
-
-// DELETE
-exports.deleteTask = async (taskId) => {
-	await dynamo.send(
-		new DeleteCommand({
-			TableName: TABLE,
+async function getTaskById(taskId) {
+	const result = await dynamoDB
+		.get({
+			TableName: TABLE_NAME,
 			Key: { taskId },
 		})
-	);
+		.promise();
+
+	return result.Item;
+}
+
+async function getTasks() {
+	const result = await dynamoDB.scan({ TableName: TABLE_NAME }).promise();
+	return result.Items;
+}
+
+module.exports = {
+	createTask,
+	getTaskById,
+	getTasks,
+	updateTask,
+	deleteTask,
 };

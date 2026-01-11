@@ -1,5 +1,5 @@
 const taskService = require('../services/taskService');
-const { success, error } = require('../utils/response');
+const { error } = require('../utils/response');
 
 exports.deleteTask = async (req, res) => {
 	try {
