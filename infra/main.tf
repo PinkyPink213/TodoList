@@ -127,7 +127,7 @@ resource "aws_apigatewayv2_route" "get_task" {
 
 resource "aws_apigatewayv2_route" "update_task" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /tasks/{id}"
+  route_key = "PUT /tasks/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
