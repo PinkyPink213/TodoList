@@ -6,16 +6,16 @@ const {
 	deleteTask,
 } = require('./services/taskServices');
 
-exports.handler = async (event) => {
-	console.log('Event:', JSON.stringify(event));
+exports.handler = async (task) => {
+	console.log('task:', JSON.stringify(task));
 
 	try {
-		const { routeKey, pathParameters } = event;
+		const { routeKey, pathParameters } = task;
 
 		let body = {};
-		if (event.body) {
+		if (task.body) {
 			try {
-				body = JSON.parse(event.body);
+				body = JSON.parse(task.body);
 			} catch (err) {
 				return {
 					statusCode: 400,
