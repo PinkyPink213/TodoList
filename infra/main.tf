@@ -142,7 +142,7 @@ resource "aws_apigatewayv2_route" "delete_task" {
 # -----------------------------
 resource "aws_apigatewayv2_stage" "prod" {
   api_id      = aws_apigatewayv2_api.api.id
-  name        = prod
+  name        = "prod"
   auto_deploy = true
 }
 
