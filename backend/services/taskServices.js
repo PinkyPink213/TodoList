@@ -8,7 +8,7 @@ async function createTask(data) {
 		taskId: uuidv4(),
 		title: data.title,
 		description: data.description || '',
-		status: 'pending',
+		taskstatus: 'active',
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
 	};
@@ -55,9 +55,9 @@ async function updateTask(taskId, data) {
 		attrValues[':description'] = data.description;
 	}
 
-	if (data.status !== undefined) {
-		updateExp += ', status = :status';
-		attrValues[':status'] = data.status;
+	if (data.taskstatus !== undefined) {
+		updateExp += ', taskstatus = :taskstatus';
+		attrValues[':taskstatus'] = data.taskstatus;
 	}
 
 	const params = {

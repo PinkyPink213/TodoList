@@ -38,29 +38,28 @@ function renderTasks(tasks) {
 			li.className = 'list-group-item d-flex align-items-center';
 
 			li.innerHTML = `
-            <input type="checkbox" class="form-check-input me-3 checkbox-animate"
-                   onclick="toggleTask('${task.taskId}', this.checked)"
-                   ${task.status === 'completed' ? 'checked' : ''}>
+                <input type="checkbox" class="form-check-input me-3 checkbox-animate"
+                       onclick="toggleTask('${task.taskId}', this.checked)"
+                       ${task.status === 'completed' ? 'checked' : ''}>
 
-            <span class="flex-fill ${
-							task.status === 'completed' ? 'completed' : ''
-						}">
-                ${task.title}
-            </span>
+                <span class="flex-fill ${
+									task.status === 'completed' ? 'completed' : ''
+								}">
+                    ${task.title}
+                </span>
 
-            <button class="btn btn-sm btn-outline-primary me-2"
-                    onclick="openEdit('${task.taskId}', '${task.title.replace(
-				/'/g,
-				"\\'"
-			)}')">
-                Edit
-            </button>
+                <button class="btn btn-sm btn-outline-primary me-2"
+                        onclick="openEdit('${
+													task.taskId
+												}', '${task.title.replace(/'/g, "\\'")}')">
+                    Edit
+                </button>
 
-            <button class="btn btn-sm btn-outline-danger"
-                    onclick="deleteTask('${task.taskId}')">
-                Delete
-            </button>
-        `;
+                <button class="btn btn-sm btn-outline-danger"
+                        onclick="deleteTask('${task.taskId}')">
+                    Delete
+                </button>
+            `;
 
 			list.appendChild(li);
 		});
@@ -87,12 +86,26 @@ async function createTask() {
 async function toggleTask(id, checked) {
 	const status = checked ? 'completed' : 'pending';
 
+	// Instant UI update
+	const li = event.target.closest('li');
+	const titleSpan = li.querySelector('span');
+
+	if (checked) {
+		titleSpan.classList.add('completed');
+		showToast('Task completed!');
+	} else {
+		titleSpan.classList.remove('completed');
+		showToast('Task marked active');
+	}
+
+	// PUT update to DB
 	await fetch(`${API_URL}/tasks/${id}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ status }),
+		body: JSON.stringify({ status: status }),
 	});
 
+	// Reload to re-sort & apply filters
 	loadTasks();
 }
 

@@ -1,37 +1,52 @@
-/* completed task styling */
+/* ==========================
+   GENERAL COMPLETED STYLE
+   ========================== */
 .completed {
-    text-decoration: line-through;
-    color: #aaa !important;
-    background: #e9ecef !important;
+    text-decoration: line-through !important;
+    color: #777 !important;
+    background-color: #e9ecef !important;
 }
 
-/* checkbox animation */
+/* ==========================
+   CHECKBOX ANIMATION
+   ========================== */
 .checkbox-animate {
-    transition: transform 0.2s ease;
+    transition: transform 0.15s ease;
 }
 
 .checkbox-animate:checked {
-    transform: scale(1.2);
+    transform: scale(1.25);
 }
 
-/* Dark mode */
-[data-theme="dark"] {
+/* ==========================
+   DARK MODE (GLOBAL)
+   ========================== */
+[data-theme="dark"] body {
     background-color: #121212 !important;
     color: #eee !important;
 }
 
+/* dark cards & list items */
 [data-theme="dark"] .card,
 [data-theme="dark"] .list-group-item {
-    background-color: #1f1f1f !important;
+    background-color: #1e1e1e !important;
     color: #ccc !important;
+    border-color: #333 !important;
 }
 
+/* completed tasks in dark mode */
 [data-theme="dark"] .completed {
-    background-color: #2d2d2d !important;
-    color: #777 !important;
+    background-color: #2a2a2a !important;
+    color: #999 !important;
 }
 
+/* dark tab active */
 [data-theme="dark"] .nav-link.active {
-    color: #fff !important;
     background-color: #333 !important;
+    color: #fff !important;
+}
+
+/* dark tab normal */
+[data-theme="dark"] .nav-link {
+    color: #bbb !important;
 }
