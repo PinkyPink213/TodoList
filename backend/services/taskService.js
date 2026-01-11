@@ -2,6 +2,7 @@ const dynamoDB = require('../db/dynamoClient');
 const { v4: uuidv4 } = require('uuid');
 
 const TABLE_NAME = 'TodoTasks';
+
 async function createTask(data) {
 	const item = {
 		taskId: uuidv4(),
@@ -41,30 +42,47 @@ async function getTasks() {
 async function updateTask(taskId, data) {
 	const now = new Date().toISOString();
 
+	let updateExp = 'SET updatedAt = :updatedAt';
+	let attrValues = { ':updatedAt': now };
+
+	if (data.title !== undefined) {
+		updateExp += ', title = :title';
+		attrValues[':title'] = data.title;
+	}
+
+	if (data.description !== undefined) {
+		updateExp += ', description = :description';
+		attrValues[':description'] = data.description;
+	}
+
+	if (data.status !== undefined) {
+		updateExp += ', status = :status';
+		attrValues[':status'] = data.status;
+	}
+
 	const params = {
 		TableName: TABLE_NAME,
 		Key: { taskId },
-
-		UpdateExpression: `
-			SET title = :title,
-			    description = :description,
-			    status = :status,
-			    updatedAt = :updatedAt
-		`,
-
-		ExpressionAttributeValues: {
-			':title': data.title,
-			':description': data.description || '',
-			':status': data.status || 'pending',
-			':updatedAt': now,
-		},
-
+		UpdateExpression: updateExp,
+		ExpressionAttributeValues: attrValues,
 		ReturnValues: 'ALL_NEW',
 	};
 
 	const result = await dynamoDB.update(params).promise();
 	return result.Attributes;
 }
+
+async function deleteTask(taskId) {
+	await dynamoDB
+		.delete({
+			TableName: TABLE_NAME,
+			Key: { taskId },
+		})
+		.promise();
+
+	return { message: 'Task deleted successfully' };
+}
+
 module.exports = {
 	createTask,
 	getTaskById,
