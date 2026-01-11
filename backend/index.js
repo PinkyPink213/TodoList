@@ -1,33 +1,32 @@
-const { getTasks, getTaskById } = require('./handlers/getTasks');
-const { createTask } = require('./handlers/createTask');
-const { updateTask } = require('./handlers/updateTask');
-const { deleteTask } = require('./handlers/deleteTask');
+const {
+	getTasks,
+	getTaskById,
+	createTask,
+	updateTask,
+	deleteTask,
+} = require('./services/taskServices');
 
-exports.handler = async (task) => {
-	console.log('Tasks:', JSON.stringify(task));
+exports.handler = async (event) => {
+	console.log('Event:', JSON.stringify(event));
 
 	try {
-		const { routeKey, pathParameters } = task;
+		const { routeKey, pathParameters } = event;
 
-		// Safe JSON parse
 		let body = {};
-		if (task.body) {
+		if (event.body) {
 			try {
-				body = JSON.parse(task.body);
-			} catch (e) {
+				body = JSON.parse(event.body);
+			} catch (err) {
 				return {
 					statusCode: 400,
-					body: JSON.stringify({ error: 'Invalid JSON body' }),
+					body: JSON.stringify({ error: 'Invalid JSON' }),
 				};
 			}
 		}
 
 		switch (routeKey) {
 			case 'GET /tasks':
-				return {
-					statusCode: 200,
-					body: JSON.stringify(await getTasks()),
-				};
+				return { statusCode: 200, body: JSON.stringify(await getTasks()) };
 
 			case 'GET /tasks/{id}':
 				return {
@@ -61,7 +60,7 @@ exports.handler = async (task) => {
 				};
 		}
 	} catch (err) {
-		console.error('Error:', err);
+		console.error(err);
 		return {
 			statusCode: 500,
 			body: JSON.stringify({ error: err.message }),
