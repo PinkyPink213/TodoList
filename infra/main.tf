@@ -78,8 +78,7 @@ resource "aws_lambda_function" "backend" {
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   environment {
     variables = {
-      EVENTS_TABLE    = aws_dynamodb_table.events.name
-      EVENT_REG_TABLE = aws_dynamodb_table.event_registrations.name
+      EVENTS_TABLE    = aws_dynamodb_table.todo_tasks.name
       BUCKET_NAME = "todolist-bucket"
     }
   }
@@ -128,7 +127,7 @@ resource "aws_apigatewayv2_route" "get_task" {
 
 resource "aws_apigatewayv2_route" "update_task" {
   api_id    = aws_apigatewayv2_api.api.id
-  route_key = "POST /events/{id}"
+  route_key = "POST /tasks/{id}"
   target    = "integrations/${aws_apigatewayv2_integration.lambda.id}"
 }
 
