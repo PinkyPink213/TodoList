@@ -1,20 +1,70 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-
 const { getTasks, getTaskById } = require('./handlers/getTasks');
 const { createTask } = require('./handlers/createTask');
 const { updateTask } = require('./handlers/updateTask');
 const { deleteTask } = require('./handlers/deleteTask');
 
-const app = express();
-app.use(bodyParser.json());
+exports.handler = async (event) => {
+	console.log('Event:', JSON.stringify(event));
 
-// Routes
-app.get('/tasks', getTasks); // Get all tasks
-app.get('/tasks/:id', getTaskById); // Get single task
-app.post('/tasks', createTask); // Create task
-app.put('/tasks/:id', updateTask); // Update task
-app.delete('/tasks/:id', deleteTask); // Delete task
+	try {
+		const { routeKey, pathParameters } = event;
 
-// Server
-app.listen(3000, () => console.log('Server running on 3000'));
+		// Safe JSON parse
+		let body = {};
+		if (event.body) {
+			try {
+				body = JSON.parse(event.body);
+			} catch (e) {
+				return {
+					statusCode: 400,
+					body: JSON.stringify({ error: 'Invalid JSON body' }),
+				};
+			}
+		}
+
+		switch (routeKey) {
+			case 'GET /tasks':
+				return {
+					statusCode: 200,
+					body: JSON.stringify(await getTasks()),
+				};
+
+			case 'GET /tasks/{id}':
+				return {
+					statusCode: 200,
+					body: JSON.stringify(await getTaskById(pathParameters.id)),
+				};
+
+			case 'POST /tasks':
+				return {
+					statusCode: 201,
+					body: JSON.stringify(await createTask(body)),
+				};
+
+			case 'PUT /tasks/{id}':
+				return {
+					statusCode: 200,
+					body: JSON.stringify(await updateTask(pathParameters.id, body)),
+				};
+
+			case 'DELETE /tasks/{id}':
+				await deleteTask(pathParameters.id);
+				return {
+					statusCode: 200,
+					body: JSON.stringify({ message: 'Task deleted successfully' }),
+				};
+
+			default:
+				return {
+					statusCode: 404,
+					body: JSON.stringify({ error: 'Route not found' }),
+				};
+		}
+	} catch (err) {
+		console.error('Error:', err);
+		return {
+			statusCode: 500,
+			body: JSON.stringify({ error: err.message }),
+		};
+	}
+};
