@@ -1,13 +1,6 @@
-exports.success = (res, data, status = 200) => {
-	return res.status(status).json({
-		success: true,
-		data,
-	});
-};
+const response = (statusCode, body = {}) => ({
+	statusCode,
+	body: JSON.stringify(body),
+});
 
-exports.error = (res, message = 'Internal Server Error', status = 500) => {
-	return res.status(status).json({
-		success: false,
-		message,
-	});
-};
+module.exports = { response };

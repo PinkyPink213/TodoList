@@ -1,12 +1,23 @@
-const taskService = require('../services/taskService');
+const { updateTask } = require('../services/taskService');
+const { response } = require('../utils/response');
 
-exports.updateTask = async (req, res) => {
+exports.handler = async (task) => {
 	try {
-		const { id } = req.params;
-		const task = await taskService.updateTask(id, req.body);
-		res.status(200).json(task);
+		// console.log('RAW task:', JSON.stringify(task));
+		let body = {};
+
+		// Handles all cases safely
+		if (typeof task === 'string') {
+			body = JSON.parse(task);
+		} else if (task?.body) {
+			body = typeof task.body === 'string' ? JSON.parse(task.body) : task.body;
+		} else {
+			body = task;
+		}
+		const taskId = task.pathParameters.id;
+		const result = await updateTask(taskId, body);
+		return response(201, result);
 	} catch (err) {
-		console.error(err);
-		res.status(500).json({ message: 'Failed to update task' });
+		return response(400, { error: err.message });
 	}
 };

@@ -38,6 +38,33 @@ async function getTasks() {
 	return result.Items;
 }
 
+async function updateTask(taskId, data) {
+	const now = new Date().toISOString();
+
+	const params = {
+		TableName: TABLE_NAME,
+		Key: { taskId },
+
+		UpdateExpression: `
+			SET title = :title,
+			    description = :description,
+			    status = :status,
+			    updatedAt = :updatedAt
+		`,
+
+		ExpressionAttributeValues: {
+			':title': data.title,
+			':description': data.description || '',
+			':status': data.status || 'pending',
+			':updatedAt': now,
+		},
+
+		ReturnValues: 'ALL_NEW',
+	};
+
+	const result = await dynamoDB.update(params).promise();
+	return result.Attributes;
+}
 module.exports = {
 	createTask,
 	getTaskById,

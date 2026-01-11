@@ -1,20 +1,26 @@
-const taskService = require('../services/taskService');
-const { error } = require('../utils/response');
+const { deleteTask } = require('../services/taskService');
 
-exports.deleteTask = async (req, res) => {
+exports.handler = async (task) => {
 	try {
-		const { id } = req.params;
-
-		// check if task exists
-		const task = await taskService.getTask(id);
-		if (!task) {
-			return error(res, 'Task not found', 404);
+		const taskId = task.pathParameters?.id;
+		if (!taskId) {
+			return {
+				statusCode: 400,
+				body: JSON.stringify({ error: 'Missing task ID' }),
+			};
 		}
 
-		await taskService.deleteTask(id);
-		return res.status(204).send(); // no content
+		await deleteTask(taskId);
+
+		return {
+			statusCode: 200,
+			body: JSON.stringify({ message: 'Task deleted successfully' }),
+		};
 	} catch (err) {
-		console.error('Delete Task Error:', err);
-		return error(res);
+		console.error(err);
+		return {
+			statusCode: 500,
+			body: JSON.stringify({ error: err.message }),
+		};
 	}
 };

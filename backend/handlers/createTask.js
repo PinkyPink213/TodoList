@@ -1,19 +1,23 @@
-const taskService = require('../services/taskService');
-const { validateTaskInput } = require('../utils/validator');
-const { success, error } = require('../utils/response');
+const { createTask } = require('../services/taskService');
+const { response } = require('../utils/response');
 
-exports.createTask = async (req, res) => {
-	const { isValid, errors } = validateTaskInput(req.body);
-
-	if (!isValid) {
-		return error(res, errors, 400);
-	}
-
+exports.handler = async (task) => {
 	try {
-		const task = await taskService.createTask(req.body);
-		return success(res, task, 201);
+		// console.log('RAW task:', JSON.stringify(task));
+		let body = {};
+
+		// Handles all cases safely
+		if (typeof task === 'string') {
+			body = JSON.parse(task);
+		} else if (task?.body) {
+			body = typeof task.body === 'string' ? JSON.parse(task.body) : task.body;
+		} else {
+			body = task;
+		}
+		// console.log('BODY task:', body);
+		const result = await createTask(body);
+		return response(201, result);
 	} catch (err) {
-		console.error('Create error:', err);
-		return error(res);
+		return response(400, { error: err.message });
 	}
 };

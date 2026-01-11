@@ -3,17 +3,17 @@ const { createTask } = require('./handlers/createTask');
 const { updateTask } = require('./handlers/updateTask');
 const { deleteTask } = require('./handlers/deleteTask');
 
-exports.handler = async (event) => {
-	console.log('Event:', JSON.stringify(event));
+exports.handler = async (task) => {
+	console.log('Tasks:', JSON.stringify(task));
 
 	try {
-		const { routeKey, pathParameters } = event;
+		const { routeKey, pathParameters } = task;
 
 		// Safe JSON parse
 		let body = {};
-		if (event.body) {
+		if (task.body) {
 			try {
-				body = JSON.parse(event.body);
+				body = JSON.parse(task.body);
 			} catch (e) {
 				return {
 					statusCode: 400,
