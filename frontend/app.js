@@ -17,7 +17,9 @@ async function loadTasks() {
 	let tasks = await res.json();
 
 	// Auto sort: active on top, completed bottom
-	tasks.sort((a, b) => (a.status === 'completed') - (b.status === 'completed'));
+	tasks.sort(
+		(a, b) => (a.taskstatus === 'completed') - (b.taskstatus === 'completed')
+	);
 
 	renderTasks(tasks);
 }
@@ -29,37 +31,35 @@ function renderTasks(tasks) {
 
 	tasks
 		.filter((task) => {
-			if (currentFilter === 'active') return task.status !== 'completed';
-			if (currentFilter === 'completed') return task.status === 'completed';
+			if (currentFilter === 'active') return task.taskstatus !== 'completed';
+			if (currentFilter === 'completed') return task.taskstatus === 'completed';
 			return true;
 		})
 		.forEach((task) => {
 			const li = document.createElement('li');
 			li.className = 'list-group-item d-flex align-items-center';
 
+			const safeTitle = task.title || ''; // <-- กันตาย
+
 			li.innerHTML = `
-                <input type="checkbox" class="form-check-input me-3 checkbox-animate"
-                       onclick="toggleTask('${task.taskId}', this.checked)"
-                       ${task.status === 'completed' ? 'checked' : ''}>
+				<input type="checkbox" class="form-check-input me-3 checkbox-animate"
+					onclick="toggleTask('${task.taskId}', this.checked)"
+					${task.taskstatus === 'completed' ? 'checked' : ''}>
 
-                <span class="flex-fill ${
-									task.status === 'completed' ? 'completed' : ''
-								}">
-                    ${task.title}
-                </span>
+				<span class="flex-fill ${task.taskstatus === 'completed' ? 'completed' : ''}">
+					${safeTitle}
+				</span>
 
-                <button class="btn btn-sm btn-outline-primary me-2"
-                        onclick="openEdit('${
-													task.taskId
-												}', '${task.title.replace(/'/g, "\\'")}')">
-                    Edit
-                </button>
+				<button class="btn btn-sm btn-outline-primary me-2"
+					onclick="openEdit('${task.taskId}', '${safeTitle.replace(/'/g, "\\'")}')">
+					Edit
+				</button>
 
-                <button class="btn btn-sm btn-outline-danger"
-                        onclick="deleteTask('${task.taskId}')">
-                    Delete
-                </button>
-            `;
+				<button class="btn btn-sm btn-outline-danger"
+					onclick="deleteTask('${task.taskId}')">
+					Delete
+				</button>
+			`;
 
 			list.appendChild(li);
 		});
@@ -69,7 +69,10 @@ function renderTasks(tasks) {
 async function createTask() {
 	const input = document.getElementById('taskInput');
 	const title = input.value.trim();
-	if (!title) return;
+	if (!title.trim()) {
+		alert('Please enter a title');
+		return;
+	}
 
 	await fetch(`${API_URL}/tasks`, {
 		method: 'POST',
@@ -84,7 +87,7 @@ async function createTask() {
 
 // ----- TOGGLE COMPLETED -----
 async function toggleTask(id, checked) {
-	const status = checked ? 'completed' : 'pending';
+	const status = checked ? 'completed' : 'active';
 
 	// Instant UI update
 	const li = event.target.closest('li');
@@ -98,11 +101,10 @@ async function toggleTask(id, checked) {
 		showToast('Task marked active');
 	}
 
-	// PUT update to DB
 	await fetch(`${API_URL}/tasks/${id}`, {
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ status: status }),
+		body: JSON.stringify({ taskstatus: status }),
 	});
 
 	// Reload to re-sort & apply filters

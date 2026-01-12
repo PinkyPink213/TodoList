@@ -4,10 +4,15 @@ const { v4: uuidv4 } = require('uuid');
 const TABLE_NAME = 'TodoTasks';
 
 async function createTask(data) {
+	if (!data.title || data.title.trim() === '') {
+		return {
+			statusCode: 400,
+			body: JSON.stringify({ message: 'Title is required' }),
+		};
+	}
 	const item = {
 		taskId: uuidv4(),
 		title: data.title,
-		description: data.description || '',
 		taskstatus: 'active',
 		createdAt: new Date().toISOString(),
 		updatedAt: new Date().toISOString(),
@@ -48,11 +53,6 @@ async function updateTask(taskId, data) {
 	if (data.title !== undefined) {
 		updateExp += ', title = :title';
 		attrValues[':title'] = data.title;
-	}
-
-	if (data.description !== undefined) {
-		updateExp += ', description = :description';
-		attrValues[':description'] = data.description;
 	}
 
 	if (data.taskstatus !== undefined) {

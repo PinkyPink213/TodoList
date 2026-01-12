@@ -26,10 +26,6 @@ jobs:
         run: npm install
         working-directory: ./backend
 
-      # - name: Run tests
-      #   run: npm test
-      #   working-directory: backend/__tests__
-
       - name: Build Lambda package
         working-directory: backend
         run: |
