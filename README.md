@@ -6,7 +6,8 @@ A cloud-native To-Do List application built with Node.js, AWS Lambda, API Gatewa
 
 You can try the live version of the project here:
 
-👉 **http://todolist-web-frontend.s3-website-ap-southeast-1.amazonaws.com/**
+👉 <a href="http://todolist-web-frontend.s3-website-ap-southeast-1.amazonaws.com/" target="_blank">http://todolist-web-frontend.s3-website-ap-southeast-1.amazonaws.com/
+</a>
 
 The application is hosted on **AWS S3 Static Website Hosting** and powered by a fully serverless backend using **API Gateway, Lambda, and DynamoDB**.
 
