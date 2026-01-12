@@ -34,32 +34,3 @@ resource "aws_iam_role_policy" "ddb" {
   })
 }
 
-# -----------------------------
-# IAM Role for S3
-# -----------------------------
-resource "aws_iam_user" "github_frontend" {
-  name = "github-frontend-deploy"
-}
-
-resource "aws_iam_user_policy" "github_frontend_policy" {
-  name = "github-frontend-s3-policy"
-  user = aws_iam_user.github_frontend.name
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Effect   = "Allow"
-        Action   = ["s3:PutObject", "s3:DeleteObject", "s3:ListBucket"]
-        Resource = [
-          aws_s3_bucket.frontend.arn,
-          "${aws_s3_bucket.frontend.arn}/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_access_key" "github_frontend_access_key" {
-  user = aws_iam_user.github_frontend.name
-}
